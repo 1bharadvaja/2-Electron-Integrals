@@ -194,3 +194,39 @@ __device__ double compute_eri_angular(const GaussianPrimitive &a, const Gaussian
     return result;
 }
 
+
+__device__ double compute_contracted_eri(const ContractedGaussian &A,
+                                           const ContractedGaussian &B,
+                                           const ContractedGaussian &C,
+                                           const ContractedGaussian &D) {
+    double sum = 0.0;
+    for (int i = 0; i < A.nPrim; i++) {
+        for (int j = 0; j < B.nPrim; j++) {
+            for (int k = 0; k < C.nPrim; k++) {
+                for (int l = 0; l < D.nPrim; l++) {
+
+                    double term = compute_eri_angular(A.prims[i],
+                                                      B.prims[j],
+                                                      C.prims[k],
+                                                      D.prims[l]);
+                    sum += term;
+                }
+            }
+        }
+    }
+    return sum;
+}
+
+// kernel
+__global__ void compute_contracted_eri_kernel(const ContractedIntegralPair* pairs,
+                                                double* results,
+                                                int numPairs) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < numPairs) {
+        const ContractedIntegralPair &pair = pairs[idx];
+        double eri = compute_contracted_eri(pair.bra1, pair.bra2,
+                                            pair.ket1, pair.ket2);
+        results[idx] = eri;
+    }
+}
+
