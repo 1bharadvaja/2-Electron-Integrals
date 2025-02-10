@@ -1,4 +1,4 @@
-# Parallel-Programming
+# Two Electron Integral API
 
 Ignore the VectorAdd.cu file. This repo will be dedicated to trying to write a CUDA library/API for calculating double electron integrals using various recurrence relations and things of that sort
 
