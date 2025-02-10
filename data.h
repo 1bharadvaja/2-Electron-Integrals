@@ -25,3 +25,19 @@ struct IntegralPair {
     GaussianPrimitive ket1;  // orbital c (first in ket pair)
     GaussianPrimitive ket2;  // orbital d (second in ket pair)
 };
+
+
+// linear combination of primitives
+struct ContractedGaussian {
+    int nPrim;                             // Number of primitives in the contraction.
+    GaussianPrimitive prims[MAX_PRIMS];    // Array of primitives.
+};
+
+// integral pair := 4 contracted gaussians
+struct ContractedIntegralPair {
+    ContractedGaussian bra1;  
+    ContractedGaussian bra2;  
+    ContractedGaussian ket1;
+    ContractedGaussian ket2;  
+};
+
