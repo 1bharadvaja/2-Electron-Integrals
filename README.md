@@ -1,6 +1,6 @@
 # Parallel-Programming
 
-Ignore the VectorAdd.cu file. This repo will be dedicated to trying to write CUDA kernels for calculating double electron integrals using various recurrence relations and things of that sort
+Ignore the VectorAdd.cu file. This repo will be dedicated to trying to write a CUDA library/API for calculating double electron integrals using various recurrence relations and things of that sort
 
 I will be implementing the Boys Function $$\(F(n,z)=\int _{0}^{1}e^{-zt}t^{2}ndt\)$$ soon, and then I will implement Hermite coefficients. 
 
