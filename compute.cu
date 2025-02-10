@@ -230,3 +230,50 @@ __global__ void compute_contracted_eri_kernel(const ContractedIntegralPair* pair
     }
 }
 
+//API Functions!
+extern "C" void evaluate_contracted_two_electron_integrals(const ContractedIntegralPair* h_pairs,
+                                                             double* h_results,
+                                                             int numPairs) {
+    ContractedIntegralPair* d_pairs = nullptr;
+    double* d_results = nullptr;
+    size_t pairsSize   = numPairs * sizeof(ContractedIntegralPair);
+    size_t resultsSize = numPairs * sizeof(double);
+
+    cudaError_t err;
+    err = cudaMalloc((void**)&d_pairs, pairsSize);
+    if (err != cudaSuccess) {
+        fprintf(stderr, "cudaMalloc for d_pairs failed: %s\n", cudaGetErrorString(err));
+        return;
+    }
+    err = cudaMalloc((void**)&d_results, resultsSize);
+    if (err != cudaSuccess) {
+        fprintf(stderr, "cudaMalloc for d_results failed: %s\n", cudaGetErrorString(err));
+        cudaFree(d_pairs);
+        return;
+    }
+    err = cudaMemcpy(d_pairs, h_pairs, pairsSize, cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) {
+        fprintf(stderr, "cudaMemcpy to device failed: %s\n", cudaGetErrorString(err));
+        cudaFree(d_pairs);
+        cudaFree(d_results);
+        return;
+    }
+    int threadsPerBlock = 256;
+    int blocks = (numPairs + threadsPerBlock - 1) / threadsPerBlock;
+    compute_contracted_eri_kernel<<<blocks, threadsPerBlock>>>(d_pairs, d_results, numPairs);
+    err = cudaGetLastError();
+    if (err != cudaSuccess) {
+        fprintf(stderr, "Kernel launch error: %s\n", cudaGetErrorString(err));
+        cudaFree(d_pairs);
+        cudaFree(d_results);
+        return;
+    }
+    err = cudaMemcpy(h_results, d_results, resultsSize, cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess) {
+        fprintf(stderr, "cudaMemcpy from device failed: %s\n", cudaGetErrorString(err));
+    }
+    cudaFree(d_pairs);
+    cudaFree(d_results);
+}
+
+
